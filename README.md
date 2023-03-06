@@ -1,4 +1,4 @@
-# SparkTrail
+# SparkTrail [![CodeQL](https://github.com/notdodo/SparkTrail/actions/workflows/codeql.yml/badge.svg)](https://github.com/notdodo/SparkTrail/actions/workflows/codeql.yml)
 
 Use this Python script to start a Spark standalone session to interact with the CloudTrail bucket.
 Spark allow to query the logs using a SQL-like syntax.

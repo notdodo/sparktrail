@@ -11,7 +11,7 @@ from pyspark.sql import SparkSession
 
 def read_aws_config():
     config = ConfigParser()
-    config.read(Path("~/.aws/config").expanduser().absolute())
+    config.read(Path("~/.aws/config").expanduser())
     return config["profile " + os.environ["AWS_PROFILE"]]
 
 
@@ -26,8 +26,8 @@ def is_sso():
 
 def get_sso_cached_login(sso_url):
     cache = sha1(sso_url.encode()).hexdigest()
-    sso_cache_file = Path(f"~/.aws/sso/cache/{cache}.json").absolute()
-    return json.loads(sso_cache_file.absolute().read_text())
+    sso_cache_file = Path(f"~/.aws/sso/cache/{cache}.json").expanduser()
+    return json.loads(sso_cache_file.read_text())
 
 
 def get_sso_credentials():

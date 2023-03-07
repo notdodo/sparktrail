@@ -13,11 +13,17 @@ The startup `main.py` script will automatically load SSO credentials and set AWS
 
 1. Start the cluster:
 
-`PYSPARK_DRIVER_PYTHON=ipython PYTHONSTARTUP=main.py pyspark --packages org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262 --name SparkTrail`
+`PYSPARK_DRIVER_PYTHON=ipython PYTHONSTARTUP=main.py pyspark --packages org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262 --driver-memory 15G --executor-memory 5G --name SparkTrail`
 
 2. Now the environment is configured and to start running queries link the S3 bucket. When the IPython shell is return link the bucket and start performing queries:
 
 ```python
-spark = link_s3("s3a://audit-cloudtrail-logs/AWSLogs/")
+spark = link_s3("audit-cloudtrail-logs/AWSLogs/")
 spark.select("Records.eventName").distinct().show(10)
 ```
+
+### Notes
+
+- You can use this script to any bucket with partitioned JSON files (e.g., Databricks audit logs)
+- You may need to adjust the memory sizing to fit your environment
+- You need to `aws sso login` before running the command

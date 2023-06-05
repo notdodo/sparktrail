@@ -9,7 +9,7 @@ readme = "README.md"
 python = "^3.10"
 pyspark = "^3.3.2"
 ipython = "^8.11.0"
-boto3 = "^1.26.142"
+boto3 = "^1.26.146"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -1,8 +1,4 @@
-import json
 import os
-from configparser import ConfigParser
-from hashlib import sha1
-from pathlib import Path
 
 import boto3
 from pyspark import SparkConf, SparkContext

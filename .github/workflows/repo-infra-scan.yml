@@ -1,4 +1,4 @@
-name: Security Scan
+name: CI Scan
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ on:
       - main
 
 concurrency:
-  group: ghas-security-scan-${{ github.ref }}
+  group: ghas-ci-scan-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

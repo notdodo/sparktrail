@@ -1,0 +1,51 @@
+version: "3"
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+tasks:
+  default:
+    desc: Show available commands
+    cmds:
+      - task --list-all
+
+  install:
+    desc: Install development dependencies
+    cmds:
+      - uv sync --group dev
+
+  format:
+    desc: Format repository code
+    cmds:
+      - uv run ruff format
+      - uv run ruff check --fix
+
+  format-check:
+    desc: Check the code format (without modifying)
+    cmds:
+      - uv run ruff format --check
+
+  lint:
+    desc: Run lint checks
+    cmds:
+      - uv run ruff check main.py tests/
+
+  type-check:
+    desc: Run static type checks
+    cmds:
+      - uv run mypy main.py tests/
+
+  check:
+    desc: Run formatting check, lint, and type checks
+    deps: [format-check, lint, type-check]
+
+  test:
+    desc: Run all tests
+    aliases: [tests]
+    cmds:
+      - uv run pytest
+
+  test-verbose:
+    desc: Run all tests with verbose output
+    cmds:
+      - uv run pytest -v

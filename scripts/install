@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+set -eu
+
+ROOT_DIR=$(unset CDPATH && cd -- "$(dirname -- "$0")/.." && pwd)
+cd "$ROOT_DIR"
+
+if ! command -v uv >/dev/null 2>&1; then
+    printf '%s\n' "uv is required: https://docs.astral.sh/uv/getting-started/installation/" >&2
+    exit 1
+fi
+
+uv sync --locked --no-dev
+uv run --frozen --no-dev python -c "import duckdb; con = duckdb.connect(); con.install_extension('httpfs'); con.install_extension('json')"
+
+printf '%s\n' "SparkTrail is ready."
+printf '%s\n' "Run it with: AWS_PROFILE=<profile> scripts/sparktrail"

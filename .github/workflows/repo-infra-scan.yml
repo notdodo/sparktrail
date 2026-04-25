@@ -1,4 +1,4 @@
-name: Security Scan
+name: CI Scan
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ on:
       - main
 
 concurrency:
-  group: ghas-security-scan-${{ github.ref }}
+  group: ghas-ci-scan-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -26,3 +26,9 @@ jobs:
     uses: notdodo/github-actions/.github/workflows/sast.yml@sast-v0
     secrets:
       semgrep_app_token: ${{ secrets.SEMGREP_APP_TOKEN }}
+  python-ci:
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
+    uses: notdodo/github-actions/.github/workflows/python-ci.yml@python-ci-v0

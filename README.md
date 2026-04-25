@@ -1,29 +1,118 @@
-# SparkTrail [![CodeQL](https://github.com/notdodo/SparkTrail/actions/workflows/codeql.yml/badge.svg)](https://github.com/notdodo/SparkTrail/actions/workflows/codeql.yml)
+# SparkTrail
 
-Use this Python script to start a Spark standalone session to interact with the CloudTrail bucket.
-Spark allow to query the logs using a SQL-like syntax.
+Query CloudTrail JSON logs in S3 from an interactive Python shell.
 
-The startup `main.py` script will automatically load SSO credentials and set AWS temporary credentials from the SSO to authenticated to the bucket.
+SparkTrail uses DuckDB instead of PySpark. That removes the Spark/Hadoop/AWS SDK jar compatibility problem: runtime dependencies are Python packages in `uv.lock`, while DuckDB's `httpfs` and `json` extensions are loaded for the installed DuckDB version.
+
+## Requirements
+
+- `uv`
+- AWS SSO credentials for the target account
+- No Java runtime
+
+Run SSO login before opening SparkTrail:
+
+```sh
+aws sso login --profile audit
+```
+
+## Install
+
+```sh
+scripts/install
+```
 
 ## Usage
 
-0. Spawn Poetry shell:
+Start an interactive IPython shell with the project helpers loaded:
 
-`poetry shell`
-
-1. Start the cluster:
-
-`PYSPARK_DRIVER_PYTHON=ipython PYTHONSTARTUP=main.py pyspark --packages org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262 --driver-memory 15G --executor-memory5G --name SparkTrail`
-
-2. Now the environment is configured and to start running queries link the S3 bucket. When the IPython shell is created, link the bucket and start performing queries:
-
-```python
-spark = link_s3("audit-cloudtrail-logs/AWSLogs/")
-spark.select("Records.eventName").distinct().show(10)
+```sh
+AWS_PROFILE=audit scripts/sparktrail
 ```
 
-### Notes
+Link a CloudTrail prefix and query it with SQL:
 
-- You can use this script to any bucket with partitioned JSON files (e.g., Databricks audit logs)
-- You may need to adjust the memory sizing to fit your environment
-- You need to `aws sso login` before running the command
+```python
+db = link_s3("audit-cloudtrail-logs/AWSLogs/")
+db.sql("SELECT DISTINCT record.eventName FROM cloudtrail_records LIMIT 10").show()
+```
+
+`link_s3` creates a `cloudtrail_records` view with one row per CloudTrail record. The original event is available as the `record` struct, and the source object path is available as `filename`.
+
+```python
+db.sql("""
+    SELECT
+        record.eventSource,
+        record.eventName,
+        count(*) AS events
+    FROM cloudtrail_records
+    GROUP BY 1, 2
+    ORDER BY events DESC
+    LIMIT 20
+""").show()
+```
+
+For generic partitioned JSON logs, use `link_json_s3`:
+
+```python
+db = link_json_s3("audit-cloudtrail-logs/AWSLogs/", view_name="raw_logs")
+db.sql("SELECT * FROM raw_logs LIMIT 10").show()
+```
+
+Paths can be passed as `bucket/prefix`, `s3://bucket/prefix`, or a full glob. If the path is a prefix, SparkTrail appends `**/*.json*`.
+
+## Local logs
+
+To query local CloudTrail files without AWS credentials, use `link_local`:
+
+```python
+db = link_local("/path/to/logs/")
+db.sql("SELECT record.eventName, record.sourceIPAddress FROM cloudtrail_records LIMIT 10").show()
+```
+
+For generic local JSON logs, use `link_json_local`:
+
+```python
+db = link_json_local("/path/to/logs/", view_name="raw_logs")
+db.sql("SELECT * FROM raw_logs LIMIT 10").show()
+```
+
+Paths follow the same rules as S3: a directory gets `**/*.json*` appended, or pass an explicit glob like `/path/to/logs/*.json.gz`.
+
+## Docker
+
+Build the image:
+
+```sh
+docker build -t sparktrail .
+```
+
+Run it with your AWS config mounted read-only:
+
+```sh
+docker run --rm -it \
+  -e AWS_PROFILE=audit \
+  -v "$HOME/.aws:/root/.aws:ro" \
+  sparktrail
+```
+
+Run `aws sso login --profile audit` on the host first so the container can read the cached SSO credentials.
+
+To query local logs without AWS credentials, mount the log directory and use `link_local`:
+
+```sh
+docker run --rm -it \
+  -v "/path/to/logs:/data/logs:ro" \
+  sparktrail
+```
+
+```python
+db = link_local("/data/logs/")
+```
+
+## Updates
+
+- `uv.lock` pins the Python dependency graph.
+- Dependabot opens `uv` PRs for Python dependency updates.
+- Dependabot opens Docker PRs for the base and tool images.
+- There are no Spark, Hadoop, or AWS SDK jar coordinates to keep manually aligned.

@@ -31,4 +31,4 @@ jobs:
       contents: read
       pull-requests: write
       security-events: write
-    uses: DigintLab/github/.github/workflows/python-ci.yml@python-ci-v0
+    uses: notdodo/github-actions/.github/workflows/python-ci.yml@python-ci-v0

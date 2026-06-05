@@ -5,9 +5,9 @@ description = ""
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "boto3>=1.43.14",
+    "boto3>=1.43.18",
     "duckdb>=1.5.3",
-    "ipython>=8.39.0",
+    "ipython>=9.14.0",
 ]
 
 [dependency-groups]

@@ -12,10 +12,10 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "boto3-stubs>=1.43.59",
+    "boto3-stubs>=1.43.65",
     "mypy[faster-cache]>=2.3.0",
     "pytest>=9.1.1",
-    "ruff>=0.16.0",
+    "ruff>=0.16.1",
 ]
 
 [build-system]

@@ -39,6 +39,7 @@ ignore = [
     "D4",      # docstring style (too opinionated)
     "ANN",     # type annotations enforced by mypy instead
     "COM812",  # trailing comma (conflicts with formatter)
+    "CPY001",  # copyright headers are not required for this project
     "ISC001",  # implicit string concat (conflicts with formatter)
     "PLC0415", # import not at top level (intentional lazy imports)
     "PLR2004", # magic values (too noisy for simple branching)

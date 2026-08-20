@@ -92,7 +92,7 @@ Run it with your AWS config mounted read-only:
 ```sh
 docker run --rm -it \
   -e AWS_PROFILE=audit \
-  -v "$HOME/.aws:/root/.aws:ro" \
+  -v "$HOME/.aws:/home/sparktrail/.aws:ro" \
   sparktrail
 ```
 

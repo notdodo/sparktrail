@@ -23,4 +23,6 @@ COPY scripts ./scripts
 
 USER 10001:10001
 
+HEALTHCHECK NONE
+
 ENTRYPOINT ["./scripts/sparktrail"]

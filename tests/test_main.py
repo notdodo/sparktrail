@@ -54,4 +54,4 @@ def test_create_json_view_reads_generic_json(tmp_path: Path) -> None:
     connection = duckdb.connect()
     create_json_view(connection, str(source), view_name="logs")
 
-    assert connection.sql("SELECT count(*) FROM logs").fetchone() == (2,)
+    assert connection.execute("SELECT count(*) FROM logs").fetchone() == (2,)
